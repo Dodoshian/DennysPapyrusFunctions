@@ -14,7 +14,7 @@ Returns its weapon template (the weapon it uses as a base in Creation Kit).
 If there is no template then it returns None.
 */
 RE::TESObjectWEAP *GetTemplateWeapon(RE::StaticFunctionTag *, RE::TESObjectWEAP *baseWeapon) {
-     const char *name = baseWeapon->GetName();
+     //const char *name = baseWeapon->GetName();
 
     // logger::info("Running Function");
     // logger::info("source Weapon is {}", name);
@@ -37,7 +37,7 @@ Returns its Armor template (the Armor it uses as a base in Creation Kit).
 If there is no template then it returns None.
 */
 RE::TESObjectARMO *GetTemplateArmor(RE::StaticFunctionTag *, RE::TESObjectARMO *baseArmor) {
-      const char *name = baseArmor->GetName();
+     // const char *name = baseArmor->GetName();
 
       // logger::info("Running Function");
      // logger::info("source Armor is {}", name);
@@ -192,71 +192,12 @@ bool BindPapyrusFunctions(RE::BSScript::IVirtualMachine *vm) {
     return true;
 }
 
-struct OurEventSink : public RE::BSTEventSink<RE::TESHitEvent>
-{
-    RE::BSEventNotifyControl ProcessEvent(const RE::TESHitEvent *event, RE::BSTEventSource <RE::TESHitEvent>* source)
-    {
-         string targetName = event->target->GetBaseObject()->GetName();
-         string attackerName = event->cause->GetBaseObject()->GetName();
-         logger::info("{} hit {}", attackerName, targetName);
-         return RE::BSEventNotifyControl::kContinue;
-    }
-};
 
 SKSEPluginLoad(const SKSE::LoadInterface *skse) {
     SKSE::Init(skse);
     SKSE::GetPapyrusInterface()->Register(BindPapyrusFunctions);
-    SetupLog();
+   // SetupLog();
 
-  //  OurEventSink eventSink = OurEventSink();
-
-    OurEventSink * eventSink = new OurEventSink();
-
-    ScriptEventSourceHolder* holder = RE::ScriptEventSourceHolder::GetSingleton();
-
-    holder->AddEventSink(eventSink);
-    //holder->AddEventSink()
 
     return true;
 }
-
-
-/*
-void OnDataLoaded() {
-    int formID = 0x64b3d;
-
-    RE::TESForm *form = RE::TESForm::LookupByID(formID);
-
-    
-
-    int value = form->GetGoldValue();
-    logger::info("Gold value of sweetroll: {}", value);
-    int merID = 0xB9980;
-
-    RE::TESForm *marcurio = RE::TESForm::LookupByID(merID);
-    const char *name = marcurio->GetName();
-    logger::info("Name: {}", name);
-}
-
-
-void OnMessage(SKSE::MessagingInterface::Message *tMessage) 
-{
-    int tType = tMessage->type;
-    if (tType == SKSE::MessagingInterface::kDataLoaded) {
-       // logger::info("about to load a game");
-       OnDataLoaded();
-    }
-        
-   // logger::info("Message Type: {}", tType);
-}
-
-
-
-SKSEPluginLoad(const SKSE::LoadInterface *skse) {
-    SKSE::Init(skse);
-    SetupLog();
-
-    SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
-   //logger::info()
-    return true;
-}*/
