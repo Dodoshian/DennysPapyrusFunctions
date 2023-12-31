@@ -1,9 +1,11 @@
-> 📜 other templates available at https://github.com/SkyrimScripting/SKSE_Templates
+> Template used: https://github.com/SkyrimScripting/SKSE_Templates
 
-# Denny's Papyrus Functions"
---Thanks to mrowrpurr for the template and tutorials!!!
+# Denny's Papyrus Functions
+
 
 Source code will be available here. Requires CommonLibSSE
+
+--Thanks to mrowrpurr for the template and tutorials!!!
 # Requirements
 
 - [Visual Studio 2022](https://visualstudio.microsoft.com/) (_the free Community edition_)
