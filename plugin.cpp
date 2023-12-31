@@ -120,8 +120,8 @@ Returns the Recipe required to make this item at the forge, if it exists..
 Note this will not work for weapons and armor that use template weapons or armors.
 Make sure you use GetTemplateArmor() or GetTemplateWeapon() first in those cases.
 
-By Default, this will only check recipes that use the Forge. 
-To check a different workbench, pass its keyword in as a string as argument 2.
+By Default, this will check any workbench's recipes. 
+To check a specific workbench, pass its keyword in as a string as argument 2.
 
 */
 RE::BGSConstructibleObject *GetCraftingRecipe(RE::StaticFunctionTag *, RE::TESForm *baseForm, string keywordString) 
@@ -131,24 +131,41 @@ RE::BGSConstructibleObject *GetCraftingRecipe(RE::StaticFunctionTag *, RE::TESFo
 
       RE::BSTArray<RE::BGSConstructibleObject *> thisArray =
           RE::TESDataHandler::GetSingleton()->GetFormArray<RE::BGSConstructibleObject>();
-
+      size_t len = keywordString.length();
       int i = 0;
-      for (BGSConstructibleObject *item : thisArray) {
-         //logger::info("Current item: {}", i);
-         i += 1;
-         if (item->createdItem == baseForm)  // if this recipe creates the same item we have here...
-         {
-             if (item->benchKeyword == temperKeyword)  // and the keyword is forge
+
+      if (len == 0)  // if arg 2 is empty string
+      {
+         for (BGSConstructibleObject *item : thisArray) {
+             // logger::info("Current item: {}", i);
+             i += 1;
+             if (item->createdItem == baseForm)  // if this recipe creates the same item we have here...
              {
-               //  logger::info("This is the recipe for {}", baseForm->GetName());
-                 return item;
+                     return item;
              }
          }
       }
-      return nullptr;
+      else
+      {
+         for (BGSConstructibleObject *item : thisArray) {
+             // logger::info("Current item: {}", i);
+             i += 1;
+             if (item->createdItem == baseForm)  // if this recipe creates the same item we have here...
+             {
+                 if (item->benchKeyword == temperKeyword)  // and the keyword is forge
+                 {
+                     return item;
+                 }
+             }
+         }
+      }
+
+      return nullptr;//return none if this search failed
 }
 
-/*returns an array of all recipes that create this item and use the associated keyword*/
+/*returns an array of all recipes that create this item and use the associated keyword.
+If keyword string is empty string then it will ignore keywords and return all recipes.
+*/
 RE::BSTArray<RE::BGSConstructibleObject*> GetCraftingRecipeArray(RE::StaticFunctionTag *, RE::TESForm *baseForm, string keywordString) {
    //   logger::info("running code");
       RE::TESForm *temperKeyword = TESForm::LookupByEditorID(keywordString);
@@ -160,23 +177,39 @@ RE::BSTArray<RE::BGSConstructibleObject*> GetCraftingRecipeArray(RE::StaticFunct
       //this array holds values that will be returned
       RE::BSTArray<RE::BGSConstructibleObject *> returnArray;  // = new RE::BSTArray<RE::BGSConstructibleObject*>;
       
-
+      size_t len = keywordString.length();
       int i = 0;
       int j = 0;
-      for (BGSConstructibleObject *item : thisArray) {
-        // logger::info("Current item: {}", i);
-         i += 1;
-         if (item->createdItem == baseForm)  // if this recipe creates the same item we have here...
-         {
-             if (item->benchKeyword == temperKeyword)  // and the keyword is forge
+
+      if (len == 0)//if arg 2 is empty string
+      {
+         for (BGSConstructibleObject *item : thisArray) {
+             i += 1;
+             if (item->createdItem == baseForm)  // if this recipe creates the same item we have here...
              {
-            //     logger::info("This is the recipe for {}", baseForm->GetName());
-                 j += 1;
-                 returnArray.resize(j);
-                 returnArray[j - 1] = item;
+                j += 1;
+                returnArray.resize(j);
+                returnArray[j - 1] = item;   
              }
          }
       }
+      else//otherwise its a keyword
+      {
+         for (BGSConstructibleObject *item : thisArray) {
+             i += 1;
+             if (item->createdItem == baseForm)  // if this recipe creates the same item we have here...
+             {
+                 if (keywordString.length() == 0 || item->benchKeyword == temperKeyword)  // and the keyword is forge
+                 {
+                     //     logger::info("This is the recipe for {}", baseForm->GetName());
+                     j += 1;
+                     returnArray.resize(j);
+                     returnArray[j - 1] = item;
+                 }
+             }
+         }
+      }
+
       return returnArray;
 }
 
