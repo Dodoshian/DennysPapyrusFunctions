@@ -214,6 +214,60 @@ RE::BSTArray<RE::BGSConstructibleObject*> GetCraftingRecipeArray(RE::StaticFunct
 }
 
 
+/*
+Adds the keyword "kToAdd" to all armors that contain ALL of the keywords in array "kRequired"
+
+returns the number of armors that were altered.
+
+This is primarily useful for condition functions when you need to use 1 keyword to give more information than you normally can
+since HasKeyword can only take 1 argument. You can use this function to consolidate sets of keywords into 1. 
+for example 'ArmorHelmet' and 'ArmorHeavy' into 'HeavyHelmet'.
+*/
+int AddKeywordToAllArmorsWithKeywords(RE::StaticFunctionTag*, RE::BGSKeyword *kToAdd,
+  RE::BSTArray<RE::BGSKeyword *> kRequired) 
+{
+
+      int numAltered = 0;
+      
+
+      // holds all Objects of armor
+      RE::BSTArray<RE::TESObjectARMO *> thisArray =
+          RE::TESDataHandler::GetSingleton()->GetFormArray<RE::TESObjectARMO>();
+
+      for (TESObjectARMO *item : thisArray)
+      {
+        int hasAllKeywords = 1;
+
+        for (RE::BGSKeyword * kWord : kRequired)
+        {
+            if (!(item->HasKeyword(kWord)))
+            {
+                 hasAllKeywords = 0;
+                 break; // skip to next item if this one lacks the keyword
+            }
+        }
+        
+        if (hasAllKeywords == 1)
+        {
+            if (item->HasKeyword(kToAdd))
+            {
+                ; // don't add the keyword if its already on it
+            }
+            else
+            {
+                item->AddKeyword(kToAdd);//add keyword and increment counter of forms altered.
+                string name = item->GetName();
+             //   logger::info("{} has keyword", name);
+                numAltered += 1;
+            }
+        }
+
+         
+      }
+      return numAltered;
+}
+
+
 bool BindPapyrusFunctions(RE::BSScript::IVirtualMachine *vm) {
     vm->RegisterFunction("GetTemplateWeapon", "DennysPapyrusFunctions", GetTemplateWeapon);
     vm->RegisterFunction("GetTemplateArmor", "DennysPapyrusFunctions", GetTemplateArmor);
@@ -221,7 +275,10 @@ bool BindPapyrusFunctions(RE::BSScript::IVirtualMachine *vm) {
     vm->RegisterFunction("GetArmorTemperingRecipe", "DennysPapyrusFunctions", GetArmorTemperingRecipe);
     vm->RegisterFunction("GetCraftingRecipe", "DennysPapyrusFunctions", GetCraftingRecipe);
     vm->RegisterFunction("GetCraftingRecipeArray", "DennysPapyrusFunctions", GetCraftingRecipeArray);
-     //logger::info("successfully registered function");
+    vm->RegisterFunction("AddKeywordToAllArmorsWithKeywords", "DennysPapyrusFunctions",
+                         AddKeywordToAllArmorsWithKeywords);
+    
+    // logger::info("successfully registered function");
     return true;
 }
 
